@@ -18,17 +18,17 @@ const DEBOUNCE_MS = 400;
 
 type TagParam = NoteTag | "all";
 
-export interface NotesByTagClientProps {
+export interface NotesClientProps {
   initialQuery: string;
   initialPage: number;
   tag: TagParam;
 }
 
-export default function NotesByTagClient({
+export default function NotesClient({
   initialQuery,
   initialPage,
   tag,
-}: NotesByTagClientProps) {
+}: NotesClientProps) {
   const [search, setSearch] = useState<string>(initialQuery);
   const [page, setPage] = useState<number>(initialPage);
 
@@ -60,8 +60,8 @@ export default function NotesByTagClient({
       <div className={css.controls}>
         <SearchBox
           value={search}
-          onChange={(v) => {
-            setSearch(v);
+          onChange={(value) => {
+            setSearch(value);
             setPage(1);
           }}
         />
@@ -74,7 +74,11 @@ export default function NotesByTagClient({
         <>
           <NoteList notes={notes} />
           {totalPages > 1 && (
-            <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
           )}
         </>
       )}

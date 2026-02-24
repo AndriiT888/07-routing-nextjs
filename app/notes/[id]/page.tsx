@@ -3,6 +3,7 @@ import { fetchNoteById } from "@/lib/api";
 import HydrateClient from "@/components/HydrateClient/HydrateClient";
 import NoteDetailsClient from "./NoteDetails.client";
 
+
 export default async function NoteDetailsPage({
   params,
 }: {

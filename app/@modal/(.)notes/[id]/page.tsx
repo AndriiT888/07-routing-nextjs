@@ -2,7 +2,7 @@ import { dehydrate, QueryClient } from "@tanstack/react-query";
 import HydrateClient from "@/components/HydrateClient/HydrateClient";
 import { fetchNoteById } from "@/lib/api";
 import ModalRoute from "@/components/ModalRoute/ModalRoute";
-import NotePreview from "@/components/NotePreview/NotePreview";
+import NotePreviewClient from "./NotePreview.client";
 
 export default async function NoteModalPage({
   params,
@@ -21,7 +21,7 @@ export default async function NoteModalPage({
   return (
     <HydrateClient state={dehydrate(queryClient)}>
       <ModalRoute>
-        <NotePreview id={id} />
+     <NotePreviewClient id={id} />
       </ModalRoute>
     </HydrateClient>
   );

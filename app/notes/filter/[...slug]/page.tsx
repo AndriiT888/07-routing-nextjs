@@ -2,7 +2,7 @@ import { dehydrate, QueryClient } from "@tanstack/react-query";
 import HydrateClient from "@/components/HydrateClient/HydrateClient";
 import { fetchNotes } from "@/lib/api";
 import type { NoteTag } from "@/types/note";
-import NotesByTagClient from "./NotesByTag.client";
+import NotesClient from "./Notes.client";
 
 const PER_PAGE = 12;
 
@@ -35,11 +35,11 @@ export default async function NotesByTagPage({
 
   return (
     <HydrateClient state={dehydrate(queryClient)}>
-      <NotesByTagClient
-        initialQuery={q}
-        initialPage={page}
-        tag={activeTag}
-      />
+     <NotesClient
+  initialQuery={q}
+  initialPage={page}
+  tag={activeTag}
+/>
     </HydrateClient>
   );
 }
