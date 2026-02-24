@@ -11,6 +11,10 @@ import SearchBox from "@/components/SearchBox/SearchBox";
 import NoteList from "@/components/NoteList/NoteList";
 import Pagination from "@/components/Pagination/Pagination";
 
+import Modal from "@/components/Modal/Modal";
+import NoteForm from "@/components/NoteForm/NoteForm";
+
+
 import css from "./NotesPage.module.css";
 
 const PER_PAGE = 12;
@@ -29,6 +33,7 @@ export default function NotesClient({
   initialPage,
   tag,
 }: NotesClientProps) {
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [search, setSearch] = useState<string>(initialQuery);
   const [page, setPage] = useState<number>(initialPage);
 
@@ -57,15 +62,23 @@ export default function NotesClient({
 
   return (
     <main className={css.container}>
-      <div className={css.controls}>
-        <SearchBox
-          value={search}
-          onChange={(value) => {
-            setSearch(value);
-            setPage(1);
-          }}
-        />
-      </div>
+     <div className={css.controls}>
+  <SearchBox
+    value={search}
+    onChange={(value) => {
+      setSearch(value);
+      setPage(1);
+    }}
+  />
+
+  <button
+    type="button"
+    className={css.button}
+    onClick={() => setIsCreateOpen(true)}
+  >
+    Create note
+  </button>
+</div>
 
       {isLoading && <p>Loading, please wait...</p>}
       {error && <p>Something went wrong.</p>}
@@ -79,7 +92,13 @@ export default function NotesClient({
               totalPages={totalPages}
               onPageChange={setPage}
             />
+            
           )}
+          {isCreateOpen && (
+  <Modal onClose={() => setIsCreateOpen(false)}>
+    <NoteForm onCancel={() => setIsCreateOpen(false)} />
+  </Modal>
+)}
         </>
       )}
     </main>
