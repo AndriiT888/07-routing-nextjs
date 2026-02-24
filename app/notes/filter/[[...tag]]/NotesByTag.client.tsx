@@ -1,39 +1,83 @@
-import { dehydrate, QueryClient } from "@tanstack/react-query";
-import HydrateClient from "@/components/HydrateClient/HydrateClient";
+"use client";
+
+import { useMemo, useState } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+
 import { fetchNotes } from "@/lib/api";
-import NotesByTagClient from "./NotesByTag.client";
+import type { NoteTag } from "@/types/note";
+import { useDebounce } from "@/components/hooks/useDebounce";
+
+import SearchBox from "@/components/SearchBox/SearchBox";
+import NoteList from "@/components/NoteList/NoteList";
+import Pagination from "@/components/Pagination/Pagination";
+
+import css from "./NotesPage.module.css";
 
 const PER_PAGE = 12;
+const DEBOUNCE_MS = 400;
 
-export default async function NotesByTagPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ tag?: string[] }>;
-  searchParams?: { q?: string; page?: string };
-}) {
-  const { tag } = await params;
+type TagParam = NoteTag | "all";
 
-  const activeTag = tag?.[0] ?? "all";
-  const q = searchParams?.q ?? "";
-  const page = Number(searchParams?.page ?? "1");
+export interface NotesByTagClientProps {
+  initialQuery: string;
+  initialPage: number;
+  tag: TagParam;
+}
 
-  const queryClient = new QueryClient();
+export default function NotesByTagClient({
+  initialQuery,
+  initialPage,
+  tag,
+}: NotesByTagClientProps) {
+  const [search, setSearch] = useState<string>(initialQuery);
+  const [page, setPage] = useState<number>(initialPage);
 
-  await queryClient.prefetchQuery({
-    queryKey: ["notes", { page, perPage: PER_PAGE, search: q, tag: activeTag }],
+  const debouncedSearch = useDebounce<string>(search, DEBOUNCE_MS);
+
+  const queryKey = useMemo(
+    () => ["notes", { page, perPage: PER_PAGE, search: debouncedSearch, tag }],
+    [page, debouncedSearch, tag]
+  );
+
+  const { data, isLoading, error } = useQuery({
+    queryKey,
     queryFn: () =>
       fetchNotes({
         page,
         perPage: PER_PAGE,
-        search: q || undefined,
-        tag: activeTag === "all" ? undefined : (activeTag as any), // нижче покажу як без any
+        search: debouncedSearch || undefined,
+        tag: tag === "all" ? undefined : tag,
       }),
+    placeholderData: keepPreviousData,
+    refetchOnMount: false,
   });
 
+  const notes = data?.notes ?? [];
+  const totalPages = data?.totalPages ?? 0;
+
   return (
-    <HydrateClient state={dehydrate(queryClient)}>
-      <NotesByTagClient initialQuery={q} initialPage={page} tag={activeTag} />
-    </HydrateClient>
+    <main className={css.container}>
+      <div className={css.controls}>
+        <SearchBox
+          value={search}
+          onChange={(v) => {
+            setSearch(v);
+            setPage(1);
+          }}
+        />
+      </div>
+
+      {isLoading && <p>Loading, please wait...</p>}
+      {error && <p>Something went wrong.</p>}
+
+      {!error && (
+        <>
+          <NoteList notes={notes} />
+          {totalPages > 1 && (
+            <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+          )}
+        </>
+      )}
+    </main>
   );
 }

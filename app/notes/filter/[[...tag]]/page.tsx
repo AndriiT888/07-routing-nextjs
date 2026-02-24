@@ -1,22 +1,26 @@
 import { dehydrate, QueryClient } from "@tanstack/react-query";
 import HydrateClient from "@/components/HydrateClient/HydrateClient";
 import { fetchNotes } from "@/lib/api";
+import type { NoteTag } from "@/types/note";
 import NotesByTagClient from "./NotesByTag.client";
 
 const PER_PAGE = 12;
+
+type TagParam = NoteTag | "all";
 
 export default async function NotesByTagPage({
   params,
   searchParams,
 }: {
   params: Promise<{ tag?: string[] }>;
-  searchParams?: { q?: string; page?: string };
+  searchParams?: Promise<{ q?: string; page?: string }>;
 }) {
   const { tag } = await params;
+  const sp = (await searchParams) ?? {};
 
-  const activeTag = tag?.[0] ?? "all";
-  const q = searchParams?.q ?? "";
-  const page = Number(searchParams?.page ?? "1");
+  const activeTag = (tag?.[0] ?? "all") as TagParam;
+  const q = sp.q ?? "";
+  const page = Number(sp.page ?? "1");
 
   const queryClient = new QueryClient();
 
@@ -27,7 +31,7 @@ export default async function NotesByTagPage({
         page,
         perPage: PER_PAGE,
         search: q || undefined,
-        tag: activeTag === "all" ? undefined : (activeTag as any), // нижче покажу як без any
+        tag: activeTag === "all" ? undefined : activeTag,
       }),
   });
 
