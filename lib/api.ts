@@ -15,6 +15,7 @@ export interface FetchNotesParams {
   page: number;
   perPage: number;
   search?: string;
+  tag?: NoteTag;
 }
 
 // тільки те, що реально повертає API
