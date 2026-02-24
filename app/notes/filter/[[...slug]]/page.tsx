@@ -12,15 +12,13 @@ export default async function NotesByTagPage({
   params,
   searchParams,
 }: {
-  params: Promise<{ tag?: string[] }>;
-  searchParams?: Promise<{ q?: string; page?: string }>;
+  params: { slug?: string[] };
+  searchParams?: { q?: string; page?: string };
 }) {
-  const { tag } = await params;
-  const sp = (await searchParams) ?? {};
+  const activeTag = (params.slug?.[0] ?? "all") as TagParam;
 
-  const activeTag = (tag?.[0] ?? "all") as TagParam;
-  const q = sp.q ?? "";
-  const page = Number(sp.page ?? "1");
+  const q = searchParams?.q ?? "";
+  const page = Number(searchParams?.page ?? "1");
 
   const queryClient = new QueryClient();
 
@@ -37,7 +35,11 @@ export default async function NotesByTagPage({
 
   return (
     <HydrateClient state={dehydrate(queryClient)}>
-      <NotesByTagClient initialQuery={q} initialPage={page} tag={activeTag} />
+      <NotesByTagClient
+        initialQuery={q}
+        initialPage={page}
+        tag={activeTag}
+      />
     </HydrateClient>
   );
 }
