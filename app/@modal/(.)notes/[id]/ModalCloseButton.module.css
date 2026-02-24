@@ -1,0 +1,13 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.closeButton {
+  align-self: flex-end;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}

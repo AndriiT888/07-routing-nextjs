@@ -8,15 +8,16 @@ const PER_PAGE = 12;
 
 type TagParam = NoteTag | "all";
 
-export default async function NotesByTagPage({
+export default async function NotesBySlugPage({
   params,
   searchParams,
 }: {
-  params: { slug?: string[] };
+  params: Promise<{ slug: string[] }>;
   searchParams?: { q?: string; page?: string };
 }) {
-  const activeTag = (params.slug?.[0] ?? "all") as TagParam;
+  const { slug } = await params;
 
+  const activeTag = (slug?.[0] ?? "all") as TagParam;
   const q = searchParams?.q ?? "";
   const page = Number(searchParams?.page ?? "1");
 
@@ -35,11 +36,7 @@ export default async function NotesByTagPage({
 
   return (
     <HydrateClient state={dehydrate(queryClient)}>
-     <NotesClient
-  initialQuery={q}
-  initialPage={page}
-  tag={activeTag}
-/>
+      <NotesClient initialQuery={q} initialPage={page} tag={activeTag} />
     </HydrateClient>
   );
 }
